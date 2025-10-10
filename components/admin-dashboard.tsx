@@ -1,4 +1,4 @@
-//  
+// components/admin-dashboard.tsx
 "use client"
 
 import { useEffect, useState } from "react"
@@ -16,15 +16,15 @@ interface AdminDashboardProps {
 }
 
 interface OrderWithDetails {
- id: number
-  perfil_usuario_id: number 
+  id: number
+  perfil_usuario_id: number // CORREGIDO: Usamos perfil_usuario_id
   cliente_nombre: string
   cliente_email: string
   fecha_pedido: string
   fecha_entrega: string
   estado: string
   total: number
-  tipo_producto: string 
+  tipo_producto: string
 }
 
 export function AdminDashboard({ user }: AdminDashboardProps) {
@@ -40,8 +40,14 @@ export function AdminDashboard({ user }: AdminDashboardProps) {
   const fetchOrders = async () => {
     try {
       const response = await fetch("/api/admin/pedidos")
+
+      if (!response.ok) {
+        console.error("[v0] API response was not OK:", response.status, response.statusText);
+        return;
+      }
+
       const data = await response.json()
-      
+
       const ordersWithNumericTotal = (data.pedidos || []).map((order: OrderWithDetails) => ({
         ...order,
         total: parseFloat(order.total as any),
@@ -59,7 +65,15 @@ export function AdminDashboard({ user }: AdminDashboardProps) {
     router.push("/")
   }
 
+  // 🔑 Lógica de actualización instantánea (Optimistic Update)
   const handleStatusUpdate = async (orderId: number, newStatus: string) => {
+    // 1. Actualización optimista del estado local
+    setOrders(prevOrders =>
+      prevOrders.map(order =>
+        order.id === orderId ? { ...order, estado: newStatus } : order
+      )
+    );
+
     try {
       const response = await fetch(`/api/admin/pedidos/${orderId}`, {
         method: "PATCH",
@@ -67,11 +81,15 @@ export function AdminDashboard({ user }: AdminDashboardProps) {
         body: JSON.stringify({ estado: newStatus }),
       })
 
-      if (response.ok) {
+      if (!response.ok) {
+        // Si el servidor falla, forzamos la recarga para sincronizar (rollback)
+        console.error("Fallo al actualizar el estado en el servidor. Revirtiendo estado local.");
         fetchOrders()
       }
     } catch (error) {
-      console.error("[v0] Error updating order status:", error)
+      // Fallo de red/conexión, forzamos la recarga (rollback)
+      console.error("[v0] Error actualizando el estado del pedido:", error)
+      fetchOrders();
     }
   }
 
@@ -80,12 +98,16 @@ export function AdminDashboard({ user }: AdminDashboardProps) {
     return orders.filter((order) => order.estado === estado)
   }
 
+  /**
+   * Calcula las estadísticas de pedidos por estado (incluyendo 'entregado').
+   */
   const getOrderStats = () => {
     return {
       total: orders.length,
       pendientes: orders.filter((o) => o.estado === "pendiente").length,
       enProceso: orders.filter((o) => o.estado === "en_proceso").length,
       completados: orders.filter((o) => o.estado === "completado").length,
+      entregados: orders.filter((o) => o.estado === "entregado").length, // CORREGIDO: Se añade el recuento de entregados
     }
   }
 

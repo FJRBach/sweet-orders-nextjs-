@@ -1,24 +1,26 @@
 // components/admin-order-card.tsx
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Calendar, User, Eye, Cake, Cookie } from "lucide-react"
 import Link from "next/link"
-  interface Order {
-    id: number
-    perfil_usuario_id: number
-    cliente_nombre: string
-    cliente_email: string
-    fecha_pedido: string
-    fecha_entrega: string
-    estado: string
-    total: number
-    tipo_producto: string
-  }
+
+interface Order {
+  id: number
+  perfil_usuario_id: number // CORREGIDO: Coincide con AdminDashboard y API
+  cliente_nombre: string
+  cliente_email: string
+  fecha_pedido: string
+  fecha_entrega: string
+  estado: string
+  total: number
+  tipo_producto: string
+}
+
 interface AdminOrderCardProps {
   order: Order
   onStatusUpdate: (orderId: number, newStatus: string) => void
@@ -41,12 +43,21 @@ const estadoLabels: Record<string, string> = {
 }
 
 export function AdminOrderCard({ order, onStatusUpdate }: AdminOrderCardProps) {
+  // El estado local 'selectedStatus' es necesario para la Select
   const [selectedStatus, setSelectedStatus] = useState(order.estado)
 
   const handleStatusChange = (newStatus: string) => {
     setSelectedStatus(newStatus)
+    // Llama al handler en AdminDashboard para actualizar el estado local y enviar a la API
     onStatusUpdate(order.id, newStatus)
   }
+
+  // Sincroniza el estado local del select con la prop 'order.estado'
+  // Esto es vital para que la actualización optimista del padre se refleje en el hijo.
+  useEffect(() => {
+    setSelectedStatus(order.estado);
+  }, [order.estado]);
+
 
   return (
     <Card className="border-pink-100">

@@ -1,5 +1,4 @@
 // components/order-details-view.tsx
-// components/order-details-view.tsx
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
