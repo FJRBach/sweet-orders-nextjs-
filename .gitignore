@@ -1,0 +1,43 @@
+# Dependencias
+/node_modules
+
+# Archivos de compilación y caché de Next.js
+/.next/
+/out/
+
+# Archivos de compilación de producción
+/build
+
+# Archivos de entorno
+# No subas nunca tus variables de entorno a un repositorio público
+.env.local
+.env.development.local
+.env.production.local
+.env.test.local
+
+# Archivos de log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos del editor de código
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Archivos de prueba
+/coverage
+
+# Archivos específicos de tu proyecto (opcional, si los hubiera)
+# Por ejemplo, si tienes una base de datos local como SQLite
+*.db
+*.sqlite3
