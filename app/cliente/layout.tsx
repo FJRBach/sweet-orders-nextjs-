@@ -1,3 +1,4 @@
+// app/cliente/layout.tsx
 "use client";
 import ClienteLayoutProvider from "./layout-provider";
 import React from 'react';
@@ -6,17 +7,29 @@ import { useUser } from '@stackframe/stack';
 import { NavLink } from '../../components/NavLink';
 import { LayoutDashboard, ShoppingBag, Package, LogOut, Cake } from 'lucide-react';
 
+
 function ClientLayoutContent({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const user = useUser();
 
-   const handleLogout = async () => {
-    if (user) {
-      await user.signOut();
+  const handleLogout = async () => {
+    try {
+      // Si usas una librería de cliente como stackframe, primero cierra su sesión
+      if (user) {
+        await user.signOut();
+      }
+      
+      // Llama a nuestra API para limpiar la cookie del servidor
+      await fetch('/api/auth/logout', { method: 'POST' });
+
+    } catch (error) {
+      console.error("Failed to logout:", error);
+    } finally {
+      // La redirección y el refresh ocurren siempre, incluso si el fetch falla
+      // para asegurar que el usuario salga de la vista protegida.
+      router.push('/handler/sign-in');
+      router.refresh();
     }
-    await fetch('/api/auth/logout', { method: 'POST' });
-    router.push('/handler/sign-in');
-    router.refresh();
   };
 
   return (
@@ -30,17 +43,13 @@ function ClientLayoutContent({ children }: { children: React.ReactNode }) {
         </div>
 
         <nav className="flex flex-col gap-2 flex-1">
-          <NavLink href="/cliente" end>
-            <LayoutDashboard size={18} />
-            <span>Dashboard</span>
-          </NavLink>
-          <NavLink href="/cliente/nuevo-pedido">
-            <ShoppingBag size={18} />
-            <span>Realizar pedido</span>
-          </NavLink>
-          <NavLink href="/cliente/mis-pedidos">
+          <NavLink href="/cliente">
             <Package size={18} />
             <span>Mis pedidos</span>
+          </NavLink>
+          <NavLink href="/cliente/pedido/nuevo">
+            <ShoppingBag size={18} />
+            <span>Realizar pedido</span>
           </NavLink>
         </nav>
         

@@ -8,7 +8,11 @@ export default function StackHandlerPage(props: any) {
   return (
     <TooltipProvider>
       <StackProvider app={stackServerApp} lang="es-ES">
-        <StackHandler fullPage app={stackServerApp} routeProps={props} />
+        <StackHandler 
+          fullPage 
+          app={stackServerApp} 
+          routeProps={props}
+        />
       </StackProvider>
     </TooltipProvider>
   );

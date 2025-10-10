@@ -1,3 +1,4 @@
+// lib/db.ts
 import { Pool } from 'pg';
 
 // Declaramos una variable global para cachear la conexión.

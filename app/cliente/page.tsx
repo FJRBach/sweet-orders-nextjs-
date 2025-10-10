@@ -1,9 +1,15 @@
 // app/cliente/page.tsx
-export default function ClientDashboardPage() {
-  return (
-    <div>
-      <h1 className="text-2xl font-bold">Dashboard del Cliente</h1>
-      <p>Bienvenido, aquí verás un resumen de tu actividad.</p>
-    </div>
-  );
+import { getUserSession } from "@/lib/auth";
+import { ClientDashboard } from "@/components/client-dashboard";
+import { notFound } from "next/navigation";
+
+export default async function ClientePage() {
+  // El middleware ya garantizó que el usuario es un cliente.
+  const user = await getUserSession();
+
+  if (!user) {
+    notFound();
+  }
+  
+  return <ClientDashboard user={user} />;
 }

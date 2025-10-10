@@ -85,7 +85,6 @@ export const AuthProvider = ({
   };
 
   // --- VALOR DEVUELTO POR EL PROVIDER ---
-  // ➡️ ¡AQUÍ ESTÁ LA CLAVE! La palabra "return" es esencial.
   return (
     <AuthContext.Provider value={{ user, login, register, logout, error, isLoading, isInitialized }}>
       {children}
